@@ -1,22 +1,29 @@
 # fork-amazon
 Yeah, fork 'em
 
-Perfect, running a dedicated Ubuntu headless media server means we can map out a robust production setup. Since your server doesn't have a standard desktop browser to click through Amazon's login pages, we will leverage Docker to pipe the setup interface straight to your laptop or desktop browser.
+These docker images are designed to download audiobooks (calibre) and automatically parse ebooks downloaded from your Amazon account.  Ideally it would run directly on your media center.
 
-Here is a comprehensive blueprint to get both of these running on your system.
+## 🛠️ Automated Setup & Configuration
 
----
+Before deploying the containers, use the provided initialization script to automatically configure your environment. This ensures correct permissions (PUID/PGID), system timezone, and media mount points.
 
-## Prerequisites: Permission Prep
-
-On a dedicated Ubuntu media server, Docker containers often run into permission issues if they default to `root`. Before deploying, check your user ID and group ID by running:
-
+### 1. Initialize the Environment
+Run the initialization script from the project root:
 ```bash
-id
-
+./init-env.py
 ```
+This script will auto-detect your user credentials and interactively prompt you for your preferred media and config directory locations, creating them if necessary.
 
-*(Usually, this returns `uid=1000(yourusername) gid=1000(yourusername)` or `gid=100(users)`).* We will pass these numbers into our containers to ensure they don't lock your media folders.
+### 2. Review and Verify
+Before running `docker compose`, it is important to review the generated configuration:
+- **Environment**: Open [`.env`](./.env) to verify the paths and IDs.
+- **Service Specs**: Review the service definitions in [./calibre/docker-compose.yaml](./calibre/docker-compose.yaml) and [./libation/docker-compose.yaml](./libation/docker-compose.yaml).
+
+### 3. Load Variables (Optional)
+To export the `.env` variables into your current terminal session for manual commands:
+```bash
+source load-env.sh
+```
 
 ---
 
@@ -68,24 +75,7 @@ mkdir -p /mnt/data/downloads
 
 Append this service to your stack:
 
-```yaml
-services:
-  calibre-web-automated:
-    image: crocodilestick/calibre-web-automated:latest
-    container_name: calibre-web-automated
-    environment:
-      - PUID=1000  # Replace with your actual UID
-      - PGID=1000  # Replace with your actual GID
-      - TZ=America/Chicago
-    volumes:
-      - ~/docker/calibre-automated/config:/config
-      - /mnt/storage/media/ebooks/library:/calibre-library
-      - /mnt/storage/media/ebooks/ingest:/cwa-ingest
-    ports:
-      - 8213:8213
-    restart: unless-stopped
-
-```
+See ./calibre/docker-compose.yaml and ./.env
 
 ### 3. Spin up and Configure De-DRM
 
