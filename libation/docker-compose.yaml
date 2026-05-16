@@ -1,0 +1,14 @@
+services:
+  libation:
+    image: rmcrackan/libation:latest
+    container_name: libation
+    restart: unless-stopped
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - SLEEP_TIME=8h
+      - TZ=${TZ}
+    volumes:
+      - ${LOCALTIME}:${LOCALTIME}:ro
+      - ${CONFIG_DIR}/libation:/config
+      - ${MEDIA_DIR}/audiobooks:/audiobooks

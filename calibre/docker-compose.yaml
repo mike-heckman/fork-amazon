@@ -1,0 +1,15 @@
+services:
+  calibre-web-automated:
+    image: crocodilestick/calibre-web-automated:latest
+    container_name: calibre-web-automated
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+    volumes:
+      - ${CONFIG_DIR}/calibre-automated/config:/config
+      - ${MEDIA_DIR}/books:/calibre-library
+      - ${DOWNLOAD_DIR}:/cwa-ingest
+    ports:
+      - ${CALIBRE_WEB}:${CALIBRE_WEB}
+    restart: unless-stopped
